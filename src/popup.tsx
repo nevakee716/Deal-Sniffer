@@ -141,7 +141,9 @@ const Popup = () => {
             value={article.value.warning}
             id="warning"
             label="Warning"
-            defaultValue=""
+            multiline
+            maxRows={4}
+            defaultValue=" "
           />
           <TextField
             style={inputStyle}
