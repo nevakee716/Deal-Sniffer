@@ -16,7 +16,10 @@ function generateExcelClipboardString() {
 }
 
 function generateDiscordClipboardString() {
-  let s = `**${article.value.name}** à **${article.value.price}€** vendu par ${article.value.vendor} : \n ${article.value.url}`;
+  let s = `**${article.value.name}** à **${article.value.price}€** vendu par ${article.value.vendor} :`;
+  if (article.value.warning)
+    s += `\n:warning:${article.value.warning}:warning:`;
+  s += `\n${article.value.url}`;
   navigator.clipboard.writeText(s);
 }
 

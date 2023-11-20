@@ -4,4 +4,5 @@ export interface Article {
   price?: string;
   imgUrl?: string;
   url?: string;
+  warning?: string;
 }

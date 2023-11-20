@@ -199,6 +199,7 @@ const getInfos = (url: String) => {
   } else if (url.includes('bpm-power.com')) {
     a = getBPMPowerInfo();
     a.vendor = 'BPM-Power';
+    a.warning = "Bien Vérifier sous 5j qu'il n'y a pas de dégat sur le colis";
   }
   let selection = window?.getSelection()?.toString();
   a.name = selection != '' ? selection : a?.name?.replace('"', '');
