@@ -1,8 +1,8 @@
-# Chrome Extension TypeScript Starter
+# Deal Sniffer
 
-![build](https://github.com/chibat/chrome-extension-typescript-starter/workflows/build/badge.svg)
+Scan the article page, and get info to easily copypaste it in discord or google sheet
 
-Chrome Extension, TypeScript and Visual Studio Code
+NO DATA ARE COLLECTED AT ALL when using this application
 
 ## Prerequisites
 
