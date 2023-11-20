@@ -7,11 +7,16 @@ const seller = signal('');
 const article = signal({} as Article);
 const url = signal('');
 
-function generateClipboardString() {
+function generateExcelClipboardString() {
   let s = `=IMAGE("${article.value.imgUrl}")\t`;
   s += `=HYPERLINK("${article.value.url}";"${article.value.name}")\t`;
   s += `${article.value.vendor}\t`;
   s += `${article.value.price} €\t`;
+  navigator.clipboard.writeText(s);
+}
+
+function generateDiscordClipboardString() {
+  let s = `**${article.value.name}** à **${article.value.price}€** vendu par ${article.value.vendor} : \n ${article.value.url}`;
   navigator.clipboard.writeText(s);
 }
 
@@ -59,7 +64,14 @@ const Popup = () => {
       </ul>
 
       <button onClick={analyzeUrl}> Update</button>
-      <button onClick={generateClipboardString}> Generate Excel String</button>
+      <button onClick={generateExcelClipboardString}>
+        {' '}
+        Generate Excel String
+      </button>
+      <button onClick={generateDiscordClipboardString}>
+        {' '}
+        Generate Discord String
+      </button>
     </>
   );
 };
