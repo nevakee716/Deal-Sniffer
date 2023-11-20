@@ -13,18 +13,19 @@ import { Icon } from '@iconify/react';
 const seller = signal('');
 const article = signal({} as Article);
 const url = signal('');
-const text = signal('');
 
 function generateExcelClipboardString() {
+  let price = Math.round((article.value.price ?? 0) + (article.value.fdp ?? 0));
   let s = `=IMAGE("${article.value.imgUrl}")\t`;
   s += `=HYPERLINK("${article.value.url}";"${article.value.name}")\t`;
   s += `${article.value.vendor}\t`;
-  s += `${article.value.price} €\t`;
+  s += `${price} €\t`;
   navigator.clipboard.writeText(s);
 }
 
 function generateDiscordClipboardString() {
-  let s = `**${article.value.name}** à **${article.value.price}€** vendu par **${article.value.vendor}** :`;
+  let price = Math.round((article.value.price ?? 0) + (article.value.fdp ?? 0));
+  let s = `**${article.value.name}** à **${price}€** vendu par **${article.value.vendor}** :`;
   if (article.value.warning)
     s += `\n:warning:${article.value.warning}:warning:`;
   s += `\n${article.value.url}`;
@@ -48,7 +49,6 @@ const analyzeUrl = () => {
           for (const { frameId, result } of injectionResults) {
             article.value = result;
             article.value.url = url.value;
-            text.value = 'roto';
           }
         });
     }
@@ -75,6 +75,19 @@ const inputStyle = {
   width: '100%',
 };
 
+const priceContainerStyle = {
+  display: 'flex',
+  columnGap: '5px',
+};
+
+const priceInputStyle = {
+  width: '80%',
+};
+
+const fdpInputStyle = {
+  width: '20%',
+};
+
 const iconStyle = {
   marginRight: '2px',
 };
@@ -87,7 +100,9 @@ const handleChange = (event: any) => {
   if (event.target.id === 'vendor')
     article.value = { ...article.value, vendor: event.target.value };
   if (event.target.id === 'price')
-    article.value = { ...article.value, price: event.target.value };
+    article.value = { ...article.value, price: Number(event.target.value) };
+  if (event.target.id === 'fdp')
+    article.value = { ...article.value, fdp: Number(event.target.value) };
   if (event.target.id === 'imgUrl')
     article.value = { ...article.value, imgUrl: event.target.value };
   if (event.target.id === 'warning')
@@ -108,6 +123,7 @@ const Popup = () => {
             onChange={handleChange}
             value={article.value.url}
             id="url"
+            multiline
             label="URL"
             defaultValue="Error"
           />
@@ -127,14 +143,26 @@ const Popup = () => {
             label="Article"
             defaultValue="Error"
           />
-          <TextField
-            style={inputStyle}
-            onChange={handleChange}
-            value={article.value.price}
-            id="price"
-            label="Price"
-            defaultValue="Error"
-          />
+          <div style={priceContainerStyle}>
+            <TextField
+              style={priceInputStyle}
+              onChange={handleChange}
+              value={article.value.price}
+              id="price"
+              type="number"
+              label="Price"
+              defaultValue="404"
+            />
+            <TextField
+              style={fdpInputStyle}
+              onChange={handleChange}
+              value={article.value.fdp}
+              id="fdp"
+              type="number"
+              label="Frais De Port"
+              defaultValue="0"
+            />
+          </div>
           <TextField
             style={inputStyle}
             onChange={handleChange}
@@ -154,6 +182,7 @@ const Popup = () => {
             defaultValue="Error"
           />
         </div>
+
         <div style={cardAction}>
           <Button variant="contained" onClick={analyzeUrl}>
             <Icon style={iconStyle} icon="charm:refresh" height="30" />
