@@ -128,6 +128,37 @@ const getInfos = (url: String) => {
     return a;
   }
 
+  function getReicheltInfo() {
+    const a: Article = {};
+    a.name =
+      (
+        document.querySelector(
+          '.av_articleheader [itemprop="name"]'
+        ) as HTMLElement
+      )?.innerText ?? 'Not Found';
+    a.price = (document.querySelector('#av_price') as HTMLElement).innerText;
+    a.imgUrl =
+      document.querySelector('#gallery img')?.getAttribute('src') ??
+      'Not Found';
+    return a;
+  }
+
+  function getBPMPowerInfo() {
+    const a: Article = {};
+    a.name =
+      (document.querySelector('.titleText h1') as HTMLElement)?.innerText ??
+      'Not Found';
+    a.price = (
+      document.querySelector(
+        '#divProductInfoAndHelp .prezzoScheda'
+      ) as HTMLElement
+    ).innerText.replace(' € ', '');
+    a.imgUrl =
+      document.querySelector('#mainImageDiv img')?.getAttribute('src') ??
+      'Not Found';
+    return a;
+  }
+
   let a: Article = {};
   if (url.includes('pccomponentes.fr')) {
     a = getPcComponentesInfo();
@@ -161,7 +192,13 @@ const getInfos = (url: String) => {
     a.vendor = 'TopAchat';
   } else if (url.includes('1fodiscount.com')) {
     a = getInfoDiscountInfo();
-    a.vendor = 'InfoDiscount';
+    a.vendor = '1foDiscount';
+  } else if (url.includes('reichelt.com')) {
+    a = getReicheltInfo();
+    a.vendor = 'Reichelt';
+  } else if (url.includes('bpm-power.com')) {
+    a = getBPMPowerInfo();
+    a.vendor = 'BPM-Power';
   }
 
   a.name = a?.name?.replace('"', '');
