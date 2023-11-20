@@ -78,7 +78,7 @@ const inputStyle = {
 const iconStyle = {
   marginRight: '2px',
 };
-/* tslint:disable */
+
 const handleChange = (event: any) => {
   if (event.target.id === 'name')
     article.value = { ...article.value, name: event.target.value };
@@ -93,9 +93,6 @@ const handleChange = (event: any) => {
   if (event.target.id === 'warning')
     article.value = { ...article.value, warning: event.target.value };
 };
-/* tslint:enable */
-
-const onInput = (event: any) => (text.value = event.target.value);
 
 const Popup = () => {
   // chrome.action.setBadgeText({ text: count.toString() });
@@ -106,15 +103,6 @@ const Popup = () => {
     <>
       <div style={cardContent}>
         <div style={cardContent}>
-          <TextField
-            style={inputStyle}
-            onChange={handleChange}
-            value={text.value}
-            id="text"
-            label="URL"
-            defaultValue="Error"
-          />
-
           <TextField
             style={inputStyle}
             onChange={handleChange}
