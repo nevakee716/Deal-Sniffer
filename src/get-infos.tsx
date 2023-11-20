@@ -183,6 +183,25 @@ const getInfos = (url: String) => {
     return a;
   }
 
+  function getRDCInfo() {
+    const a: Article = {};
+    a.name =
+      (document.querySelector('.product-name span') as HTMLElement)
+        ?.innerText ?? 'Not Found';
+    a.price = Number(
+      (
+        document.querySelector('.product__price .dyn_prod_price') as HTMLElement
+      ).innerText
+        .replace(' € ', '')
+        .replace(',', '.')
+    );
+    a.imgUrl =
+      'https://www.rueducommerce.fr' +
+        document.querySelector('#gallery .owl-item img')?.getAttribute('src') ??
+      'Not Found';
+    return a;
+  }
+
   let a: Article = {};
   if (url.includes('pccomponentes.fr')) {
     a = getPcComponentesInfo();
@@ -224,6 +243,9 @@ const getInfos = (url: String) => {
     a = getBPMPowerInfo();
     a.vendor = 'BPM-Power';
     a.warning = "Bien Vérifier sous 5j qu'il n'y a pas de dégat sur le colis";
+  } else if (url.includes('rueducommerce.fr')) {
+    a = getRDCInfo();
+    a.vendor = 'Rue du Commerce';
   }
   let selection = window?.getSelection()?.toString();
   a.name = selection != '' ? selection : a?.name?.replace('"', '');
