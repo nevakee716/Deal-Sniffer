@@ -200,8 +200,8 @@ const getInfos = (url: String) => {
     a = getBPMPowerInfo();
     a.vendor = 'BPM-Power';
   }
-
-  a.name = a?.name?.replace('"', '');
+  let selection = window?.getSelection()?.toString();
+  a.name = selection != '' ? selection : a?.name?.replace('"', '');
   return a;
 };
 
