@@ -12,7 +12,6 @@ import { Icon } from '@iconify/react';
 
 const seller = signal('');
 const article = signal({} as Article);
-const url = signal('');
 
 function generateExcelClipboardString() {
   let price = Math.round((article.value.price ?? 0) + (article.value.fdp ?? 0));
@@ -37,18 +36,17 @@ const analyzeUrl = () => {
     { active: true, currentWindow: true },
     function (tabs: any) {
       const tab = tabs[0];
-      url.value = tabs[0].url;
 
       chrome.scripting
         .executeScript({
           target: { tabId: tab.id },
           func: getInfos,
-          args: [url.value],
+          args: [tab.url],
         })
         .then((injectionResults: any) => {
           for (const { frameId, result } of injectionResults) {
             article.value = result;
-            article.value.url = url.value;
+            article.value.url = tab.url;
           }
         });
     }
