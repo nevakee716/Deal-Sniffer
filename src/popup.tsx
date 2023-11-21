@@ -40,12 +40,12 @@ function generateDiscordClipboardString() {
 const cleanVendorUrl = (url: string, vendor: string = '') => {
   if (vendor.includes('Amazon')) {
     url = url.replace(/\?.+/, `?${amazonCode}`);
-  }
-  if (vendor.includes('CDiscount')) {
+  } else if (vendor.includes('CDiscount')) {
     url = url.replace(/\?.+/, `?${cdiscountCode}`);
-  }
-  if (vendor.includes('Rue du Commerce')) {
+  } else if (vendor.includes('Rue du Commerce')) {
     url = url.replace(/\?.+/, `?${rdcCode}`);
+  } else {
+    url = url.replace(/\?.+/, ``);
   }
   return url;
 };
