@@ -155,10 +155,9 @@ const getInfos = (url: String) => {
         ) as HTMLElement
       )?.innerText ?? 'Not Found';
     a.price = Number(
-      (document.querySelector('#av_price') as HTMLElement).innerText?.replace(
-        ',',
-        '.'
-      )
+      (document.querySelector('#av_price') as HTMLElement).innerText
+        ?.replaceAll('.', '')
+        .replaceAll(',', '.')
     );
     a.imgUrl =
       document.querySelector('#gallery img')?.getAttribute('src') ??
