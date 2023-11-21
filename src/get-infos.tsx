@@ -7,7 +7,7 @@ const getInfos = (url: String) => {
     a.price = Number(
       document
         .querySelector('#corePrice_feature_div .a-price-whole')
-        ?.childNodes[0].nodeValue?.replace(',', '.')
+        ?.childNodes[0].nodeValue?.replace(',', '')
     );
     a.imgUrl =
       document.querySelector('#imgTagWrapperId img')?.getAttribute('src') ??
