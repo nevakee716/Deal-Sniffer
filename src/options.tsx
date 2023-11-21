@@ -14,6 +14,7 @@ import Snackbar from '@mui/material/Snackbar';
 const preferedMethod = signal('none');
 const amazonCode = signal('');
 const cdiscountCode = signal('');
+const rdcCode = signal('');
 const status = signal(false);
 
 const Options = () => {
@@ -25,11 +26,13 @@ const Options = () => {
         preferedMethod: 'discord',
         amazonCode: '',
         cdiscountCode: '',
+        rdcCode: '',
       },
       (items) => {
         preferedMethod.value = items.preferedMethod;
         amazonCode.value = items.amazonCode;
         cdiscountCode.value = items.cdiscountCode;
+        rdcCode.value = items.rdcCode;
       }
     );
   });
@@ -41,6 +44,7 @@ const Options = () => {
         preferedMethod: preferedMethod.value,
         amazonCode: amazonCode.value,
         cdiscountCode: cdiscountCode.value,
+        rdcCode: rdcCode.value,
       },
       () => {
         status.value = true;
@@ -87,14 +91,25 @@ const Options = () => {
             id="amazon"
             label="Amazon Id Partner"
             defaultValue=""
+            helperText="Will replace everything after the ? in the url"
           />
           <TextField
             style={inputStyle}
             onChange={(e) => (cdiscountCode.value = e.target.value)}
             value={cdiscountCode.value}
             id="cdiscount"
-            label="Cdiscount ID partner (not working yet)"
+            label="Cdiscount ID partner"
             defaultValue=""
+            helperText="Will replace everything after the ? in the url"
+          />
+          <TextField
+            style={inputStyle}
+            onChange={(e) => (rdcCode.value = e.target.value)}
+            value={rdcCode.value}
+            id="rdc"
+            label="Rue du commerce ID partner"
+            defaultValue=""
+            helperText="Will replace everything after the ? in the url"
           />
         </div>
 

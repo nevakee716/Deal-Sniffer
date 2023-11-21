@@ -16,9 +16,9 @@ const article = signal({} as Article);
 const preferedMethod = signal('none');
 const amazonCode = signal('');
 const cdiscountCode = signal('');
+const rdcCode = signal('');
 
 function generateExcelClipboardString() {
-  console.log('Excel Clipboard');
   let price = Math.round((article.value.price ?? 0) + (article.value.fdp ?? 0));
   let s = `=IMAGE("${article.value.imgUrl}")\t`;
   s += `=HYPERLINK("${article.value.url}";"${article.value.name}")\t`;
@@ -28,7 +28,6 @@ function generateExcelClipboardString() {
 }
 
 function generateDiscordClipboardString() {
-  console.log('discord Clipboard');
   let price = Math.round((article.value.price ?? 0) + (article.value.fdp ?? 0));
   let s = `**${article.value.name}** à **${price}€** vendu par **${article.value.vendor}** :`;
   if (article.value.warning)
@@ -36,8 +35,20 @@ function generateDiscordClipboardString() {
   s += `\n${article.value.url}`;
 
   navigator.clipboard.writeText(s);
-  console.log('discord End');
 }
+
+const cleanVendorUrl = (url: string, vendor: string = '') => {
+  if (vendor.includes('Amazon')) {
+    url = url.replace(/\?.+/, `?${amazonCode}`);
+  }
+  if (vendor.includes('CDiscount')) {
+    url = url.replace(/\?.+/, `?${cdiscountCode}`);
+  }
+  if (vendor.includes('Rue du Commerce')) {
+    url = url.replace(/\?.+/, `?${rdcCode}`);
+  }
+  return url;
+};
 
 const analyzeUrl = () => {
   chrome.tabs.query(
@@ -54,11 +65,7 @@ const analyzeUrl = () => {
         .then((injectionResults: any) => {
           for (const { frameId, result } of injectionResults) {
             article.value = result;
-            let url = tab.url;
-            if (article.value.vendor?.includes('Amazon')) {
-              url = url.replace(/\?.+/, `?&${amazonCode}`);
-            }
-            article.value.url = url;
+            article.value.url = cleanVendorUrl(tab.url, article.value.vendor);
           }
         });
     }
@@ -133,6 +140,7 @@ const Popup = () => {
         preferedMethod.value = items.preferedMethod;
         amazonCode.value = items.amazonCode;
         cdiscountCode.value = items.cdiscountCode;
+        rdcCode.value = items.rdcCode;
         console.log('get data from options');
         analyzeUrl();
       }
