@@ -189,7 +189,7 @@ const getInfos = (url: String) => {
   function getRDCInfo() {
     const a: Article = {};
     a.name =
-      (document.querySelector('.product-name span') as HTMLElement)
+      (document.querySelector('.product-name > span') as HTMLElement)
         ?.innerText ?? 'Not Found';
     a.price = Number(
       (
