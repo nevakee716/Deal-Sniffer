@@ -109,9 +109,7 @@ const getInfos = (url: String) => {
         ?.childNodes[0].nodeValue?.replace(' €', '')
         .replace(',', '.')
     );
-    if (a.price && a.price < 200) {
-      a.fdp = 5.95;
-    }
+
     a.imgUrl =
       document
         .querySelector('.product-main-image.ps-main__main-image img')
@@ -180,6 +178,7 @@ const getInfos = (url: String) => {
         .replace(' € ', '')
         .replace(',', '.')
     );
+
     a.imgUrl =
       document.querySelector('#mainImageDiv img')?.getAttribute('src') ??
       'Not Found';
@@ -237,6 +236,13 @@ const getInfos = (url: String) => {
   } else if (url.includes('topachat.com')) {
     a = getTopAchatInfo();
     a.vendor = 'TopAchat';
+    if (a.price && a.price < 200) {
+      a.fdp = 5.95;
+    }
+    if (a.price && a.price >= 1000) {
+      a.warning = 'Demander un code de réduction 5% au CM sur twitter';
+      a.price = Math.round(a.price * 0.95);
+    }
   } else if (url.includes('1fodiscount.com')) {
     a = getInfoDiscountInfo();
     a.vendor = '1foDiscount';
@@ -246,6 +252,7 @@ const getInfos = (url: String) => {
   } else if (url.includes('bpm-power.com')) {
     a = getBPMPowerInfo();
     a.vendor = 'BPM-Power';
+    a.fdp = 20;
     a.warning = "Bien Vérifier sous 5j qu'il n'y a pas de dégat sur le colis";
   } else if (url.includes('rueducommerce.fr')) {
     a = getRDCInfo();
