@@ -213,11 +213,10 @@ const getInfos = (url: String) => {
         ?.innerText ?? 'Not Found';
     a.price = Number(
       (
-        document.querySelector(
-          '#ck_detail #buybox .article_details_price strong'
-        ) as HTMLElement
+        document.querySelector('#ck_detail #buybox strong') as HTMLElement
       ).innerText
         .replace('€', '')
+        .replaceAll('.', '')
         .replaceAll(',', '.')
         .replaceAll(' ', '')
         .replaceAll(' ', '')
