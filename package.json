@@ -6,7 +6,7 @@
   "scripts": {
     "watch": "webpack --config webpack/webpack.dev.js --watch",
     "build": "webpack --config webpack/webpack.prod.js",
-    "release_minor": "powershell Compress-Archive -Force ./Dist/* ./DealSniffer.zip && ",
+    "release_minor": "npm version minor && powershell Compress-Archive -Force ./Dist/* ./DealSniffer.zip && git add . && git commit -m \"repackage\" && git push",
     "clean": "rimraf dist",
     "test": "npx jest",
     "style": "prettier --write \"src/**/*.{ts,tsx}\""
