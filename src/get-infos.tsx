@@ -272,6 +272,7 @@ const getInfos = (url: String) => {
     a.vendor = '1foDiscount';
   } else if (url.includes('reichelt.com')) {
     a = getReicheltInfo();
+    a.fdp = 7;
     a.vendor = 'Reichelt';
   } else if (url.includes('bpm-power.com')) {
     a = getBPMPowerInfo();
