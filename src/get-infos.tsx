@@ -194,7 +194,7 @@ const getInfos = (url: String) => {
       (
         document.querySelector('.product__price .dyn_prod_price') as HTMLElement
       ).innerText
-        .replace('€ ', '')
+        .replace('€', '')
         .replaceAll(',', '.')
         .replaceAll(' ', '')
     );
@@ -202,6 +202,30 @@ const getInfos = (url: String) => {
       'https://www.rueducommerce.fr' +
         document.querySelector('#gallery .owl-item img')?.getAttribute('src') ??
       'Not Found';
+    return a;
+  }
+
+  function getCasekingInfo() {
+    const a: Article = {};
+    a.name =
+      (document.querySelector('#ck_detail  #detailbox h1') as HTMLElement)
+        ?.innerText ?? 'Not Found';
+    a.price = Number(
+      (
+        document.querySelector(
+          '#ck_detail #buybox .article_details_price strong'
+        ) as HTMLElement
+      ).innerText
+        .replace('€', '')
+        .replaceAll(',', '.')
+        .replaceAll(' ', '')
+        .replaceAll(' ', '')
+    );
+    a.imgUrl =
+      'https:' +
+        document
+          .querySelector('#ck_detail  #detailbox #img img')
+          ?.getAttribute('src') ?? 'Not Found';
     return a;
   }
 
@@ -257,7 +281,13 @@ const getInfos = (url: String) => {
   } else if (url.includes('rueducommerce.fr')) {
     a = getRDCInfo();
     a.vendor = 'Rue du Commerce';
+  } else if (url.includes('caseking.de')) {
+    a = getCasekingInfo();
+    a.vendor = 'CaseKing';
+    a.fdp = 7;
   }
+  a.name = a.name?.replace('\n', ' ') ?? 'Not found';
+
   let selection = window?.getSelection()?.toString();
   a.name = selection != '' ? selection : a?.name?.replace('"', '');
   return a;
