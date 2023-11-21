@@ -1,74 +1,120 @@
-import React, { useEffect, useState } from "react";
-import { createRoot } from "react-dom/client";
+import React, { useEffect, useState } from 'react';
+import { createRoot } from 'react-dom/client';
+import { signal, useSignalEffect } from '@preact/signals-react';
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
+import { Icon } from '@iconify/react';
+import Radio from '@mui/material/Radio';
+import RadioGroup from '@mui/material/RadioGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormControl from '@mui/material/FormControl';
+import FormLabel from '@mui/material/FormLabel';
+import Snackbar from '@mui/material/Snackbar';
+
+const preferedMethod = signal('none');
+const amazonCode = signal('');
+const cdiscountCode = signal('');
+const status = signal(false);
 
 const Options = () => {
-  const [color, setColor] = useState<string>("");
-  const [status, setStatus] = useState<string>("");
-  const [like, setLike] = useState<boolean>(false);
-
-  useEffect(() => {
+  useSignalEffect(() => {
     // Restores select box and checkbox state using the preferences
     // stored in chrome.storage.
     chrome.storage.sync.get(
       {
-        favoriteColor: "red",
-        likesColor: true,
+        preferedMethod: 'discord',
+        amazonCode: '',
+        cdiscountCode: '',
       },
       (items) => {
-        setColor(items.favoriteColor);
-        setLike(items.likesColor);
+        preferedMethod.value = items.preferedMethod;
+        amazonCode.value = items.amazonCode;
+        cdiscountCode.value = items.cdiscountCode;
       }
     );
-  }, []);
+  });
 
   const saveOptions = () => {
     // Saves options to chrome.storage.sync.
     chrome.storage.sync.set(
       {
-        favoriteColor: color,
-        likesColor: like,
+        preferedMethod: preferedMethod.value,
+        amazonCode: amazonCode.value,
+        cdiscountCode: cdiscountCode.value,
       },
       () => {
-        // Update status to let user know options were saved.
-        setStatus("Options saved.");
+        status.value = true;
         const id = setTimeout(() => {
-          setStatus("");
+          status.value = false;
         }, 1000);
         return () => clearTimeout(id);
       }
     );
   };
 
+  const cardContent = {
+    display: 'flex',
+    'flex-direction': 'column',
+    alignItems: 'strech',
+    rowGap: '10px',
+    minWidth: '800px',
+  };
+  const cardAction = {
+    display: 'flex',
+    columnGap: '5px',
+  };
+
+  const inputStyle = {
+    width: '100%',
+  };
+
+  const handleMethodChange = (event: any) => {
+    preferedMethod.value = event.target.value;
+  };
+
+  const iconStyle = {
+    marginRight: '2px',
+  };
+
   return (
     <>
-      <div>
-        Favorite color: <select
-          value={color}
-          onChange={(event) => setColor(event.target.value)}
-        >
-          <option value="red">red</option>
-          <option value="green">green</option>
-          <option value="blue">blue</option>
-          <option value="yellow">yellow</option>
-        </select>
-      </div>
-      <div>
-        <label>
-          <input
-            type="checkbox"
-            checked={like}
-            onChange={(event) => setLike(event.target.checked)}
+      <div style={cardContent}>
+        <div style={cardContent}>
+          <TextField
+            style={inputStyle}
+            onChange={(e) => (amazonCode.value = e.target.value)}
+            value={amazonCode.value}
+            id="amazon"
+            label="Amazon Id Partner"
+            defaultValue=""
           />
-          I like colors.
-        </label>
+          <TextField
+            style={inputStyle}
+            onChange={(e) => (cdiscountCode.value = e.target.value)}
+            value={cdiscountCode.value}
+            id="cdiscount"
+            label="Cdiscount ID partner (not working yet)"
+            defaultValue=""
+          />
+        </div>
+
+        <div style={cardAction}>
+          <Button variant="contained" onClick={saveOptions}>
+            <Icon style={iconStyle} icon="pixelarticons:save" />
+            Save
+          </Button>
+        </div>
+        <Snackbar
+          open={status.value}
+          autoHideDuration={1000}
+          message="Configuration Saved"
+        />
       </div>
-      <div>{status}</div>
-      <button onClick={saveOptions}>Save</button>
     </>
   );
 };
 
-const root = createRoot(document.getElementById("root")!);
+const root = createRoot(document.getElementById('root')!);
 
 root.render(
   <React.StrictMode>

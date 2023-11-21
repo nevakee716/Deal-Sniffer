@@ -13,7 +13,12 @@ import { Icon } from '@iconify/react';
 const seller = signal('');
 const article = signal({} as Article);
 
+const preferedMethod = signal('none');
+const amazonCode = signal('');
+const cdiscountCode = signal('');
+
 function generateExcelClipboardString() {
+  console.log('Excel Clipboard');
   let price = Math.round((article.value.price ?? 0) + (article.value.fdp ?? 0));
   let s = `=IMAGE("${article.value.imgUrl}")\t`;
   s += `=HYPERLINK("${article.value.url}";"${article.value.name}")\t`;
@@ -23,12 +28,15 @@ function generateExcelClipboardString() {
 }
 
 function generateDiscordClipboardString() {
+  console.log('discord Clipboard');
   let price = Math.round((article.value.price ?? 0) + (article.value.fdp ?? 0));
   let s = `**${article.value.name}** à **${price}€** vendu par **${article.value.vendor}** :`;
   if (article.value.warning)
     s += `\n:warning:${article.value.warning}:warning:`;
   s += `\n${article.value.url}`;
+
   navigator.clipboard.writeText(s);
+  console.log('discord End');
 }
 
 const analyzeUrl = () => {
@@ -46,7 +54,11 @@ const analyzeUrl = () => {
         .then((injectionResults: any) => {
           for (const { frameId, result } of injectionResults) {
             article.value = result;
-            article.value.url = tab.url;
+            let url = tab.url;
+            if (article.value.vendor?.includes('Amazon')) {
+              url = url.replace(/\?.+/, `?&${amazonCode}`);
+            }
+            article.value.url = url;
           }
         });
     }
@@ -110,7 +122,22 @@ const handleChange = (event: any) => {
 const Popup = () => {
   // chrome.action.setBadgeText({ text: count.toString() });
 
-  useSignalEffect(analyzeUrl);
+  useSignalEffect(() => {
+    chrome.storage.sync.get(
+      {
+        preferedMethod: 'discord',
+        amazonCode: '',
+        cdiscountCode: '',
+      },
+      (items) => {
+        preferedMethod.value = items.preferedMethod;
+        amazonCode.value = items.amazonCode;
+        cdiscountCode.value = items.cdiscountCode;
+        console.log('get data from options');
+        analyzeUrl();
+      }
+    );
+  });
 
   return (
     <>
