@@ -192,8 +192,9 @@ const getInfos = (url: String) => {
       (
         document.querySelector('.product__price .dyn_prod_price') as HTMLElement
       ).innerText
-        .replace(' € ', '')
-        .replace(',', '.')
+        .replace('€ ', '')
+        .replaceAll(',', '.')
+        .replaceAll(' ', '')
     );
     a.imgUrl =
       'https://www.rueducommerce.fr' +
