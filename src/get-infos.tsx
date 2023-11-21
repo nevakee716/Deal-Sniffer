@@ -130,8 +130,10 @@ const getInfos = (url: String) => {
         ) as HTMLElement
       ).innerText
         ?.replace('\n', '')
-        .replace(' €', '')
+        .replace('€', '')
         .replace(',', '.')
+        .replaceAll(' ', '')
+        .replace(' ', '')
     );
     a.imgUrl =
       'https://www.1fodiscount.com/' +
