@@ -109,6 +109,9 @@ const getInfos = (url: String) => {
         ?.childNodes[0].nodeValue?.replace(' €', '')
         .replace(',', '.')
     );
+    if (a.price && a.price < 200) {
+      a.fdp = 5.95;
+    }
     a.imgUrl =
       document
         .querySelector('.product-main-image.ps-main__main-image img')
