@@ -1,14 +1,14 @@
 import { Article } from './article';
+import { customConfiguration } from './customConfiguration';
 
-const getInfos = (url: String) => {
+const getInfos = (url: String, customConfigurations: customConfiguration[]) => {
   function getAmazonInfo() {
     const a: Article = {};
     a.name = document.getElementById('productTitle')?.innerText ?? 'Not Found';
-    a.price = Number(
-      document
-        .querySelector('#corePrice_feature_div .a-price-whole')
-        ?.childNodes[0].nodeValue?.replace(',', '')
-    );
+    a.priceText =
+      document.querySelector('#corePrice_feature_div .a-price-whole')
+        ?.childNodes[0].nodeValue ?? '';
+
     a.imgUrl =
       document.querySelector('#imgTagWrapperId img')?.getAttribute('src') ??
       'Not Found';
@@ -19,11 +19,10 @@ const getInfos = (url: String) => {
   function getPcComponentesInfo() {
     const a: Article = {};
     a.name = document.getElementById('pdp-title')?.innerText ?? 'Not Found';
-    a.price = Number(
-      document
-        .getElementById('pdp-price-current-integer')
-        ?.childNodes[0].nodeValue?.replace(',', '.')
-    );
+    a.priceText =
+      document.getElementById('pdp-price-current-integer')?.childNodes[0]
+        .nodeValue ?? '';
+
     a.imgUrl =
       document.querySelector('#pdp-section-images img')?.getAttribute('src') ??
       'Not Found';
@@ -36,11 +35,10 @@ const getInfos = (url: String) => {
     a.name =
       (document.querySelector('.fpTMain .fpDesCol h1') as HTMLElement)
         ?.innerText ?? 'Not Found';
-    a.price = Number(
-      document
-        .querySelector('.fTopPrice  .fpPrice')
-        ?.childNodes[0].nodeValue?.replace(',', '.')
-    );
+    a.priceText =
+      document.querySelector('.fTopPrice  .fpPrice')?.childNodes[0].nodeValue ??
+      '';
+
     a.imgUrl =
       document
         .querySelector('#fpZnPrdMain img#picture0')
@@ -57,12 +55,10 @@ const getInfos = (url: String) => {
           '.grb_fch-prod__content-title .grb_fch-prod__title'
         ) as HTMLElement
       )?.innerText ?? 'Not Found';
-    a.price = Number(
-      document
-        .querySelector('.fiche-produit-r  .fiche_product_price > span')
-        ?.childNodes[0].nodeValue?.replace('€', '')
-        .replace(',', '.')
-    );
+    a.priceText =
+      document.querySelector('.fiche-produit-r  .fiche_product_price > span')
+        ?.childNodes[0].nodeValue ?? '';
+
     a.imgUrl =
       'https://www.grosbill.com' +
         document
@@ -80,14 +76,11 @@ const getInfos = (url: String) => {
           '.fiche-produit__bloc-achat__container .title_fiche'
         ) as HTMLElement
       )?.innerText ?? 'Not Found';
-    a.price = Number(
-      document
-        .querySelector(
-          '.fiche-produit__bloc-achat__prix  .fiche_product_price > span'
-        )
-        ?.childNodes[0].nodeValue?.replace('€', '')
-        .replace(',', '.')
-    );
+    a.priceText =
+      document.querySelector(
+        '.fiche-produit__bloc-achat__prix  .fiche_product_price > span'
+      )?.childNodes[0].nodeValue ?? '';
+
     a.imgUrl =
       document
         .querySelector(
@@ -103,12 +96,9 @@ const getInfos = (url: String) => {
     a.name =
       (document.querySelector('.ps-main__product-title') as HTMLElement)
         ?.innerText ?? 'Not Found';
-    a.price = Number(
-      document
-        .querySelector('.ps-main__offer  .offer-price__price')
-        ?.childNodes[0].nodeValue?.replace(' €', '')
-        .replace(',', '.')
-    );
+    a.priceText =
+      document.querySelector('.ps-main__offer  .offer-price__price')
+        ?.childNodes[0].nodeValue ?? '';
 
     a.imgUrl =
       document
@@ -123,18 +113,12 @@ const getInfos = (url: String) => {
     a.name =
       (document.querySelector('.product-sheet_title') as HTMLElement)
         ?.innerText ?? 'Not Found';
-    a.price = Number(
-      (
-        document.querySelector(
-          '.product-sheet_buybox .product-sheet_buybox_offer_price'
-        ) as HTMLElement
-      ).innerText
-        ?.replace('\n', '')
-        .replace('€', '')
-        .replace(',', '.')
-        .replaceAll(' ', '')
-        .replace(' ', '')
-    );
+    a.priceText = (
+      document.querySelector(
+        '.product-sheet_buybox .product-sheet_buybox_offer_price'
+      ) as HTMLElement
+    ).innerText;
+
     a.imgUrl =
       'https://www.1fodiscount.com/' +
         document
@@ -154,11 +138,10 @@ const getInfos = (url: String) => {
           '.av_articleheader [itemprop="name"]'
         ) as HTMLElement
       )?.innerText ?? 'Not Found';
-    a.price = Number(
-      (document.querySelector('#av_price') as HTMLElement).innerText
-        ?.replaceAll('.', '')
-        .replaceAll(',', '.')
-    );
+    a.priceText = (
+      document.querySelector('#av_price') as HTMLElement
+    ).innerText?.replaceAll('.', '');
+
     a.imgUrl =
       document.querySelector('#gallery img')?.getAttribute('src') ??
       'Not Found';
@@ -170,15 +153,11 @@ const getInfos = (url: String) => {
     a.name =
       (document.querySelector('.titleText h1') as HTMLElement)?.innerText ??
       'Not Found';
-    a.price = Number(
-      (
-        document.querySelector(
-          '#divProductInfoAndHelp .prezzoScheda'
-        ) as HTMLElement
-      ).innerText
-        .replace(' € ', '')
-        .replace(',', '.')
-    );
+    a.priceText = (
+      document.querySelector(
+        '#divProductInfoAndHelp .prezzoScheda'
+      ) as HTMLElement
+    ).innerText;
 
     a.imgUrl =
       document.querySelector('#mainImageDiv img')?.getAttribute('src') ??
@@ -191,14 +170,9 @@ const getInfos = (url: String) => {
     a.name =
       (document.querySelector('.product-name > span') as HTMLElement)
         ?.innerText ?? 'Not Found';
-    a.price = Number(
-      (
-        document.querySelector('.product__price .dyn_prod_price') as HTMLElement
-      ).innerText
-        .replace('€', '')
-        .replaceAll(',', '.')
-        .replaceAll(' ', '')
-    );
+    a.priceText = (
+      document.querySelector('.product__price .dyn_prod_price') as HTMLElement
+    ).innerText;
     a.imgUrl =
       'https://www.rueducommerce.fr' +
         document.querySelector('#gallery .owl-item img')?.getAttribute('src') ??
@@ -211,16 +185,9 @@ const getInfos = (url: String) => {
     a.name =
       (document.querySelector('#ck_detail  #detailbox h1') as HTMLElement)
         ?.innerText ?? 'Not Found';
-    a.price = Number(
-      (
-        document.querySelector('#ck_detail #buybox strong') as HTMLElement
-      ).innerText
-        .replace('€', '')
-        .replaceAll('.', '')
-        .replaceAll(',', '.')
-        .replaceAll(' ', '')
-        .replaceAll(' ', '')
-    );
+    a.priceText = (
+      document.querySelector('#ck_detail #buybox strong') as HTMLElement
+    ).innerText.replaceAll('.', '');
     a.imgUrl =
       'https:' +
         document
@@ -229,8 +196,38 @@ const getInfos = (url: String) => {
     return a;
   }
 
+  function getCustomConfigurationInfo(configuration: customConfiguration) {
+    const a: Article = {};
+    a.name =
+      (document.querySelector(configuration.nameSelector) as HTMLElement)
+        ?.innerText ?? 'Not Found';
+    a.priceText = (
+      document.querySelector(configuration.priceSelector) as HTMLElement
+    ).innerText;
+
+    configuration.priceReplacers.forEach((r) => {
+      a.priceText = a.priceText?.replaceAll(r.replaced, r.replaceBy);
+    });
+
+    a.vendor = configuration.name;
+    a.imgUrl =
+      (configuration.imgPreUrl ?? '') +
+        document
+          .querySelector(configuration.imgSelector)
+          ?.getAttribute('src') ?? 'Not Found';
+    return a;
+  }
+
   let a: Article = {};
-  if (url.includes('pccomponentes.fr')) {
+  if (
+    customConfigurations.some((configuration) => {
+      if (url.includes(configuration.url ?? '')) {
+        a = getCustomConfigurationInfo(configuration);
+        return true;
+      }
+    })
+  ) {
+  } else if (url.includes('pccomponentes.fr')) {
     a = getPcComponentesInfo();
     a.vendor = 'PC Componentes';
   } else if (url.includes('pccomponentes.com')) {
@@ -287,8 +284,17 @@ const getInfos = (url: String) => {
     a.vendor = 'CaseKing';
     a.fdp = 7;
   }
+
+  a.priceText = a.priceText
+    ?.replaceAll('€', '')
+    .replaceAll(' ', '')
+    .replaceAll(' ', '')
+    .replaceAll(',', '.')
+    .replaceAll('\n', '');
+  a.price = Number(a.priceText);
   a.name = a.name?.replace('\n', ' ') ?? 'Not found';
 
+  // Si selection de text, nom = selection texte
   let selection = window?.getSelection()?.toString();
   a.name = selection != '' ? selection : a?.name?.replace('"', '');
   return a;
