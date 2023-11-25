@@ -8,44 +8,16 @@ import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import { styled } from '@mui/material/styles';
 import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
-import { customConfiguration } from './customConfiguration';
+import {
+  customConfiguration,
+  initialConfiguration,
+  emptyConfiguration,
+} from './customConfiguration';
 import { Icon } from '@iconify/react';
 
-const seller = signal('');
 const article = signal({} as Article);
 
-const preferedMethod = signal('none');
-const amazonCode = signal('');
-const cdiscountCode = signal('');
-const rdcCode = signal('');
-const showConfig = signal(false);
-
-const customConfigurations = signal([
-  {
-    name: 'Psk Mega Store',
-    fdp: 0,
-    url: 'pskmegastore.com',
-    warning: 'En test',
-    priceSelector: '.ce-product-prices span',
-    priceReplacers: [],
-    imgSelector: '.elementor-carousel-image',
-    imgPreUrl: '',
-    nameSelector: '.ce-product-name',
-  },
-]);
-const emptyConfiguration: customConfiguration = {
-  name: 'New Configuration',
-  fdp: 0,
-  url: 'pskmegastore.com',
-  warning: 'En test',
-  priceSelector: '.ce-product-prices span',
-  priceReplacers: [],
-  imgSelector: '.elementor-carousel-image',
-  imgPreUrl: '',
-  nameSelector: '.ce-product-name',
-};
-
-const customConfiguration = signal(emptyConfiguration);
+const customConfigurations = signal(initialConfiguration);
 
 function generateExcelClipboardString() {
   let price = Math.round((article.value.price ?? 0) + (article.value.fdp ?? 0));
@@ -72,47 +44,33 @@ function generateTwitchClipboardString() {
   navigator.clipboard.writeText(s);
 }
 
-const cleanVendorUrl = (url: string, vendor: string = '') => {
-  if (vendor.includes('Amazon')) {
-    url = url.replace(/\?.+/, `?${amazonCode}`);
-  } else if (vendor.includes('CDiscount')) {
-    url = url.replace(/\?.+/, `?${cdiscountCode}`);
-  } else if (vendor.includes('Rue du Commerce')) {
-    url = url.replace(/\?.+/, `?${rdcCode}`);
-  } else {
-    url = url.replace(/\?.+/, ``);
-  }
-  return url;
-};
-
 const analyzeUrl = () => {
   chrome.tabs.query(
     { active: true, currentWindow: true },
     function (tabs: any) {
       const tab = tabs[0];
+      let c: customConfiguration;
 
-      if (
-        !customConfigurations.value.some((configuration) => {
+      Object.values(customConfigurations.value).some(
+        (configuration: customConfiguration) => {
           if (tab.url.includes(configuration.url ?? '')) {
-            customConfiguration.value = configuration;
+            console.log(
+              `Configuration found : ${configuration.name} (${configuration.uuid})`
+            );
+            chrome.scripting
+              .executeScript({
+                target: { tabId: tab.id },
+                func: getInfos,
+                args: [configuration, tab.url],
+              })
+              .then((injectionResults: any) => {
+                for (const { frameId, result } of injectionResults) {
+                  article.value = result;
+                }
+              });
           }
-        })
-      ) {
-        customConfiguration.value = emptyConfiguration;
-      }
-
-      chrome.scripting
-        .executeScript({
-          target: { tabId: tab.id },
-          func: getInfos,
-          args: [tab.url, customConfigurations.value],
-        })
-        .then((injectionResults: any) => {
-          for (const { frameId, result } of injectionResults) {
-            article.value = result;
-            article.value.url = cleanVendorUrl(tab.url, article.value.vendor);
-          }
-        });
+        }
+      );
     }
   );
 };
@@ -138,81 +96,27 @@ const handleChange = (event: any) => {
     article.value = { ...article.value, warning: event.target.value };
 };
 
-const handleConfigurationChange = (event: any) => {
-  if (event.target.id === 'name')
-    customConfiguration.value = {
-      ...customConfiguration.value,
-      name: event.target.value,
-    };
-  if (event.target.id === 'warning')
-    customConfiguration.value = {
-      ...customConfiguration.value,
-      warning: event.target.value,
-    };
-  if (event.target.id === 'url')
-    customConfiguration.value = {
-      ...customConfiguration.value,
-      url: event.target.value,
-    };
-  if (event.target.id === 'nameSelector')
-    customConfiguration.value = {
-      ...customConfiguration.value,
-      nameSelector: event.target.value,
-    };
-  if (event.target.id === 'imgSelector')
-    customConfiguration.value = {
-      ...customConfiguration.value,
-      imgSelector: event.target.value,
-    };
-  if (event.target.id === 'imgPreUrl')
-    customConfiguration.value = {
-      ...customConfiguration.value,
-      imgPreUrl: event.target.value,
-    };
-  if (event.target.id === 'priceSelector')
-    customConfiguration.value = {
-      ...customConfiguration.value,
-      priceSelector: event.target.value,
-    };
-};
-
 const Popup = () => {
   // chrome.action.setBadgeText({ text: count.toString() });
 
   useSignalEffect(() => {
     chrome.storage.sync.get(
       {
-        preferedMethod: 'discord',
-        amazonCode: '',
-        cdiscountCode: '',
+        configurations: initialConfiguration,
       },
       (items) => {
-        preferedMethod.value = items.preferedMethod;
-        amazonCode.value = items.amazonCode;
-        cdiscountCode.value = items.cdiscountCode;
-        rdcCode.value = items.rdcCode;
-        console.log('get data from options');
+        const c = items.configurations;
+        Object.keys(initialConfiguration).forEach((key: string) => {
+          if (Object.keys(c).indexOf(key) === -1) {
+            c[key] = initialConfiguration[Number(key)];
+          }
+        });
+        customConfigurations.value = c;
+
         analyzeUrl();
       }
     );
   });
-
-  const handleReplacerChange = (index: any, field: any, value: any) => {
-    const newReplacers = [...customConfiguration.value.priceReplacers];
-    newReplacers[index] = {
-      ...newReplacers[index],
-      [field]: value,
-    };
-    customConfiguration.value.priceReplacers = newReplacers;
-  };
-
-  const handleAddReplacer = () => {
-    customConfiguration.value.priceReplacers.push({
-      replaced: '',
-      replaceBy: '',
-    });
-    customConfiguration.value = { ...customConfiguration.value };
-  };
 
   const cardContent = {
     display: 'flex',
@@ -282,33 +186,19 @@ const Popup = () => {
     <>
       <div style={cardContent}>
         <div style={cardContent}>
-          <div style={priceContainerStyle}>
-            <TextField
-              style={sellerInputStyle}
-              onChange={handleChange}
-              value={article.value.vendor}
-              id="vendor"
-              label="Seller"
-              defaultValue="Error"
-            />
-
-            <Button
-              style={buttonStyle}
-              variant={showConfig.value ? 'contained' : 'outlined'}
-              onClick={() => (showConfig.value = !showConfig.value)}
-            >
-              <Icon
-                style={iconStyle}
-                icon="grommet-icons:configure"
-                height="30"
-              />
-              Show Current Configuration
-            </Button>
-          </div>
           <TextField
             style={inputStyle}
             onChange={handleChange}
-            value={article.value.url}
+            value={article.value?.vendor}
+            id="vendor"
+            label="Seller"
+            defaultValue="Error"
+          />
+
+          <TextField
+            style={inputStyle}
+            onChange={handleChange}
+            value={article.value?.url}
             id="url"
             multiline
             label="URL"
@@ -318,16 +208,16 @@ const Popup = () => {
           <TextField
             style={inputStyle}
             onChange={handleChange}
-            value={article.value.name}
+            value={article.value?.name}
             id="name"
             label="Article"
             defaultValue="Error"
           />
 
-          {!article.value.price && (
+          {!article.value?.price && (
             <TextField
               style={inputStyle}
-              value={article.value.priceText}
+              value={article.value?.priceText}
               id="name"
               label="Price Text"
               defaultValue="Error"
@@ -339,7 +229,7 @@ const Popup = () => {
             <TextField
               style={priceInputStyle}
               onChange={handleChange}
-              value={article.value.price}
+              value={article.value?.price}
               id="price"
               type="number"
               label="Price"
@@ -348,7 +238,7 @@ const Popup = () => {
             <TextField
               style={inputStyle}
               onChange={handleChange}
-              value={article.value.fdp}
+              value={article.value?.fdp}
               id="fdp"
               type="number"
               label="Frais De Port"
@@ -358,7 +248,7 @@ const Popup = () => {
           <TextField
             style={inputStyle}
             onChange={handleChange}
-            value={article.value.warning}
+            value={article.value?.warning}
             id="warning"
             label="Warning"
             multiline
@@ -368,7 +258,7 @@ const Popup = () => {
           <TextField
             style={inputStyle}
             onChange={handleChange}
-            value={article.value.imgUrl}
+            value={article.value?.imgUrl}
             id="imgUrl"
             label="Image Url"
             defaultValue="Error"
@@ -394,109 +284,6 @@ const Popup = () => {
           </Button>
         </div>
       </div>
-      {showConfig.value && (
-        <div style={cardContent}>
-          <div style={cardContent}>
-            <Divider style={dividerStyle} />
-
-            <TextField
-              style={inputStyle}
-              onChange={handleConfigurationChange}
-              value={customConfiguration.value.name}
-              id="name"
-              label="Name"
-              defaultValue="Error"
-            />
-            <TextField
-              style={inputStyle}
-              onChange={handleConfigurationChange}
-              value={customConfiguration.value.warning}
-              id="warning"
-              label="Warning"
-              defaultValue="Error"
-            />
-            <TextField
-              style={inputStyle}
-              onChange={handleConfigurationChange}
-              value={customConfiguration.value.url}
-              id="url"
-              label="Url"
-              defaultValue="Error"
-              helperText="this configuration will be used if the url of the current website contain this text"
-            />
-            <TextField
-              style={inputStyle}
-              onChange={handleConfigurationChange}
-              value={customConfiguration.value.nameSelector}
-              id="nameSelector"
-              label="HTML Name Selector"
-              defaultValue="Error"
-            />
-            <TextField
-              style={inputStyle}
-              onChange={handleConfigurationChange}
-              value={customConfiguration.value.imgSelector}
-              id="imgSelector"
-              label="HTML Image Selector"
-              defaultValue="Error"
-            />
-            <TextField
-              style={inputStyle}
-              onChange={handleConfigurationChange}
-              value={customConfiguration.value.imgPreUrl}
-              id="imgPreUrl"
-              label="Img pre text"
-              defaultValue=""
-              helperText="Sometime the url of the picture doesn't contain the first part of the url, you can add this text in front"
-            />
-
-            <TextField
-              style={inputStyle}
-              onChange={handleConfigurationChange}
-              value={customConfiguration.value.priceSelector}
-              id="priceSelector"
-              label="Price Selector"
-              defaultValue="Error"
-            />
-
-            <div style={priceReplacerStyle}>
-              <InputLabel>Price Replacers</InputLabel>
-              <Button variant="text" onClick={handleAddReplacer}>
-                <Icon style={iconStyle} icon="ic:baseline-plus" />
-              </Button>
-            </div>
-
-            <div style={priceReplacerInputWrapperStyle}>
-              {customConfiguration.value.priceReplacers.map(
-                (replacer: any, index: any) => (
-                  <div style={inputStyle} key={index}>
-                    <TextField
-                      style={priceReplacerInputStyle}
-                      label="Replaced"
-                      value={replacer.replaced}
-                      onChange={(e) =>
-                        handleReplacerChange(index, 'replaced', e.target.value)
-                      }
-                    />
-                    <TextField
-                      style={priceReplacerInputStyle}
-                      label="Replace By"
-                      value={replacer.replaceBy}
-                      onChange={(e) =>
-                        handleReplacerChange(index, 'replaceBy', e.target.value)
-                      }
-                    />
-                  </div>
-                )
-              )}
-            </div>
-            <div style={cardAction}></div>
-            <Button variant="contained" color="primary">
-              Save
-            </Button>
-          </div>
-        </div>
-      )}
     </>
   );
 };
