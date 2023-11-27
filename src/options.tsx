@@ -142,6 +142,8 @@ const Options = () => {
       customConfiguration.imgPreUrl = event.target.value;
     if (event.target.id === 'priceSelector')
       customConfiguration.priceSelector = event.target.value;
+    if (event.target.id === 'partnerUrl')
+      customConfiguration.partnerUrl = event.target.value;
 
     let c = {
       ...customConfigurations.value,
