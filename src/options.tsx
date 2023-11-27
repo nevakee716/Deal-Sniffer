@@ -236,7 +236,7 @@ const Options = () => {
                 id="panel1bh-header"
               >
                 <Typography sx={{ width: '33%', flexShrink: 0 }}>
-                  {customConfiguration.name} - {customConfiguration.uuid}
+                  {customConfiguration.name}
                 </Typography>
                 <Typography sx={{ color: 'text.secondary' }}>
                   {customConfiguration.url}
