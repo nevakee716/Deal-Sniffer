@@ -25,7 +25,7 @@ const getInfos = (configuration: customConfiguration, url: string) => {
   a.price = Number(a.priceText);
   a.name = a.name?.replace('\n', ' ') ?? 'Not found';
 
-  a.url = url?.replace(/\?.+/, configuration.partnerUrl) + '?';
+  a.url = url?.replace(/\?.+/, '?' + configuration.partnerUrl);
   a.fdp = configuration.fdp;
   a.warning = configuration.warning;
   // Si selection de text, nom = selection texte
