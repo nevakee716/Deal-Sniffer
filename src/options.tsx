@@ -30,27 +30,26 @@ import Typography from '@mui/material/Typography';
 
 const status = signal(false);
 const customConfigurations = signal(initialConfiguration);
+const expended = signal(0);
+
+chrome.storage.sync.get(
+  {
+    configurations: initialConfiguration,
+  },
+  (items) => {
+    const c = items.configurations;
+    Object.keys(initialConfiguration).forEach((key) => {
+      if (Object.keys(c).indexOf(key) === -1) {
+        c[key] = initialConfiguration[Number(key)];
+      }
+    });
+
+    customConfigurations.value = c;
+  }
+);
 
 const Options = () => {
-  useSignalEffect(() => {
-    // Restores select box and checkbox state using the preferences
-    // stored in chrome.storage.
-    chrome.storage.sync.get(
-      {
-        configurations: initialConfiguration,
-      },
-      (items) => {
-        const c = items.configurations;
-        Object.keys(initialConfiguration).forEach((key) => {
-          if (Object.keys(c).indexOf(key) === -1) {
-            c[key] = initialConfiguration[Number(key)];
-          }
-        });
-
-        customConfigurations.value = c;
-      }
-    );
-  });
+  console.log('render global options');
 
   const [expanded, setExpanded] = React.useState<number | boolean>(false);
   const saveOptions = () => {
