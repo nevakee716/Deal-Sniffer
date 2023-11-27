@@ -189,7 +189,7 @@ const initialConfiguration: GlobalConfiguration = {
     nameSelector: '.product-sheet_title',
     priceSelector: '.product-sheet_buybox .product-sheet_buybox_offer_price',
     priceReplacers: [],
-    imgPreUrl: '',
+    imgPreUrl: 'https://www.1fodiscount.com/',
     imgSelector:
       '.product-sheet_slideshow_scrollable img.product-sheet_slideshow_slide_img',
     warning: '',
